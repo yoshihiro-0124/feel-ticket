@@ -1,5 +1,23 @@
+import re
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime
 import tweepy
 import os
+
+# =====================
+# URL一覧
+# =====================
+
+URLS = [
+    "https://ticketdive.com/event/UJymXUNRtuGGD0w5LGLX",
+    "https://ticketdive.com/event/x0GYEa3LVuk56WtUTXdm",
+    "https://ticketdive.com/event/feelneo-nexttour0719"
+]
+
+# =====================
+# X API
+# =====================
 
 client = tweepy.Client(
     consumer_key=os.environ["API_KEY"],
@@ -8,8 +26,59 @@ client = tweepy.Client(
     access_token_secret=os.environ["ACCESS_SECRET"]
 )
 
-client.create_tweet(
-    text="テスト投稿です。GitHub Actionsから自動投稿できています。"
-)
+# 今日の日付
+now = datetime.now()
 
-print("投稿完了")
+# =====================
+# URLを順番に確認
+# =====================
+
+for URL in URLS:
+
+    try:
+
+        html = requests.get(URL).text
+
+        soup = BeautifulSoup(html, "html.parser")
+
+        text = soup.get_text("\n")
+
+        # =====================
+        # 締切日抽出
+        # =====================
+
+        pattern = r'抽選[^\n]*?～.*?(\d{1,2})月(\d{1,2})日'
+
+        match = re.search(pattern, text)
+
+        if match:
+
+            month, day = map(int, match.groups())
+
+            # 今日が締切日か？
+            if now.month == month and now.day == day:
+
+                post_text = f"""
+【本日締切】
+
+抽選受付は本日締切です！
+
+{URL}
+
+#feelNEO
+"""
+
+                client.create_tweet(text=post_text)
+
+                print(f"投稿完了: {URL}")
+
+            else:
+                print(f"締切日ではない: {URL}")
+
+        else:
+            print(f"抽選情報なし: {URL}")
+
+    except Exception as e:
+
+        print(f"エラー: {URL}")
+        print(e)
