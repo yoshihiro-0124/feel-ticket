@@ -47,16 +47,24 @@ for URL in URLS:
         # 締切日抽出
         # =====================
 
-        pattern = r'抽選[^\n]*?～.*?(\d{1,2})月(\d{1,2})日'
+        pattern = r'(\d{4})\/(\d{2})\/(\d{2}).*?23:59'
 
-        match = re.search(pattern, text)
+        matches = re.findall(pattern, text)
 
-        if match:
+        if matches:
 
-            month, day = map(int, match.groups())
+            # 最後の日付を締切として使う
+            year, month, day = matches[-1]
 
-            # 今日が締切日か？
-            if now.month == month and now.day == day:
+            year = int(year)
+            month = int(month)
+            day = int(day)
+
+            if (
+                now.year == year and
+                now.month == month and
+                now.day == day
+            ):
 
                 post_text = f"""
 【本日締切】
