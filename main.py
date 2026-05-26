@@ -3,6 +3,8 @@ import requests
 from bs4 import BeautifulSoup
 import tweepy
 import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 # =====================
 # TicketDive URL一覧
@@ -11,6 +13,12 @@ import os
 URLS = [
     "https://ticketdive.com/event/feelneo-nexttour0719"
 ]
+
+# =====================
+# 現在時刻（日本時間）
+# =====================
+
+now = datetime.now(ZoneInfo("Asia/Tokyo"))
 
 # =====================
 # X API設定
@@ -75,7 +83,6 @@ for URL in URLS:
 
             if "開場時刻" in span_text and "開演時刻" in span_text:
 
-                # 日付部分と時刻部分を改行
                 performance_date = re.sub(
                     r'(\d{4}/\d{1,2}/\d{1,2}\(.+?\))',
                     r'\1\n',
@@ -104,15 +111,26 @@ for URL in URLS:
                 end_time
             ) = match.groups()
 
-            month = int(end_month)
-            day = int(end_day)
+            deadline_year = int(end_year)
+            deadline_month = int(end_month)
+            deadline_day = int(end_day)
 
             # =====================
-            # 投稿文作成
+            # 締切日当日だけ投稿
             # =====================
 
-            post_text = f"""
-【抽選受付締切のお知らせ】
+            if (
+                now.year == deadline_year and
+                now.month == deadline_month and
+                now.day == deadline_day
+            ):
+
+                # =====================
+                # 投稿文作成
+                # =====================
+
+                post_text = f"""
+【抽選受付締切は本日です】
 
 {event_title}
 
@@ -120,20 +138,24 @@ for URL in URLS:
 {performance_date}
 
 ■ 抽選受付締切
-{month}月{day}日 {end_time}
+{deadline_month}月{deadline_day}日 {end_time}
 
 {URL}
 
 #feelNEO
 """
 
-            # =====================
-            # X投稿
-            # =====================
+                # =====================
+                # X投稿
+                # =====================
 
-            client.create_tweet(text=post_text)
+                client.create_tweet(text=post_text)
 
-            print(f"投稿完了: {URL}")
+                print(f"投稿完了: {URL}")
+
+            else:
+
+                print(f"本日は締切日ではありません: {URL}")
 
         else:
 
