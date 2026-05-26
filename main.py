@@ -4,9 +4,17 @@ from bs4 import BeautifulSoup
 import tweepy
 import os
 
+# =====================
+# TicketDive URL一覧
+# =====================
+
 URLS = [
-    "https://ticketdive.com/event/feelneo-nexttour0719"
+    "https://ticketdive.com/event/UJymXUNRtuGGD0w5LGLX"
 ]
+
+# =====================
+# X API設定
+# =====================
 
 client = tweepy.Client(
     consumer_key=os.environ["API_KEY"],
@@ -15,33 +23,45 @@ client = tweepy.Client(
     access_token_secret=os.environ["ACCESS_SECRET"]
 )
 
+# =====================
+# URLを順番に確認
+# =====================
+
 for URL in URLS:
 
     try:
 
-html = requests.get(URL).text
+        # =====================
+        # ページ取得
+        # =====================
 
-soup = BeautifulSoup(html, "html.parser")
+        html = requests.get(URL).text
 
-text = soup.get_text("\n")
+        soup = BeautifulSoup(html, "html.parser")
 
-# =====================
-# 抽選締切取得
-# =====================
+        text = soup.get_text("\n")
 
-pattern = r'抽選受付中.*?(\d{4})\/(\d{2})\/(\d{2}).*?〜.*?(\d{4})\/(\d{2})\/(\d{2})'
+        # =====================
+        # 抽選締切取得
+        # =====================
 
-match = re.search(pattern, text, re.DOTALL)
+        pattern = r'抽選受付中.*?(\d{4})\/(\d{2})\/(\d{2}).*?〜.*?(\d{4})\/(\d{2})\/(\d{2})'
 
-if match:
+        match = re.search(pattern, text, re.DOTALL)
 
-    start_year, start_month, start_day, \
-    end_year, end_month, end_day = match.groups()
+        if match:
 
-    month = int(end_month)
-    day = int(end_day)
+            start_year, start_month, start_day, \
+            end_year, end_month, end_day = match.groups()
 
-    post_text = f"""
+            month = int(end_month)
+            day = int(end_day)
+
+            # =====================
+            # 投稿文作成
+            # =====================
+
+            post_text = f"""
 抽選受付の締切は
 {month}月{day}日です！
 
@@ -51,11 +71,20 @@ if match:
 #チケット
 """
 
-    client.create_tweet(text=post_text)
+            # =====================
+            # X投稿
+            # =====================
 
-    print(f"投稿完了: {URL}")
+            client.create_tweet(text=post_text)
 
-else:
+            print(f"投稿完了: {URL}")
 
-    print("抽選情報が見つかりません")
+        else:
+
+            print(f"抽選情報が見つかりません: {URL}")
+
+    except Exception as e:
+
+        print(f"エラー: {URL}")
+
         print(e)
