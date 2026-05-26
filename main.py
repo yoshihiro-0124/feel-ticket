@@ -19,36 +19,31 @@ for URL in URLS:
 
     try:
 
-        html = requests.get(URL).text
+html = requests.get(URL).text
 
-        soup = BeautifulSoup(html, "html.parser")
+soup = BeautifulSoup(html, "html.parser")
 
-        text = soup.get_text("\n")
+text = soup.get_text("\n")
 
-        # =====================
-        # 日付取得
-        # =====================
+# =====================
+# 抽選締切取得
+# =====================
 
-        pattern = r'(\d{4})\/(\d{2})\/(\d{2})'
+pattern = r'抽選受付中.*?(\d{4})\/(\d{2})\/(\d{2}).*?〜.*?(\d{4})\/(\d{2})\/(\d{2})'
 
-        matches = re.findall(pattern, text)
+match = re.search(pattern, text, re.DOTALL)
 
-        if matches:
+if match:
 
-            # 最後の日付を締切として使う
-            year, month, day = matches[-1]
+    start_year, start_month, start_day, \
+    end_year, end_month, end_day = match.groups()
 
-            # 先頭の0を消す
-            month = int(month)
-            day = int(day)
+    month = int(end_month)
+    day = int(end_day)
 
-            # =====================
-            # 投稿文
-            # =====================
-
-            post_text = f"""
+    post_text = f"""
 抽選受付の締切は
-{month}月{day}日 です！
+{month}月{day}日です！
 
 {URL}
 
@@ -56,15 +51,11 @@ for URL in URLS:
 #チケット
 """
 
-            client.create_tweet(text=post_text)
+    client.create_tweet(text=post_text)
 
-            print(f"投稿完了: {URL}")
+    print(f"投稿完了: {URL}")
 
-        else:
+else:
 
-            print(f"日付が見つかりません: {URL}")
-
-    except Exception as e:
-
-        print(f"エラー: {URL}")
+    print("抽選情報が見つかりません")
         print(e)
