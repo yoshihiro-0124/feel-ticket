@@ -9,7 +9,7 @@ import os
 # =====================
 
 URLS = [
-    "https://ticketdive.com/event/UJymXUNRtuGGD0w5LGLX"
+    "https://ticketdive.com/event/feelneo-nexttour0719"
 ]
 
 # =====================
