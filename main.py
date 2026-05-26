@@ -59,6 +59,27 @@ for URL in URLS:
             event_title = "イベント"
 
         # =====================
+        # 公演日時取得
+        # =====================
+
+        performance_date = "公演日時不明"
+
+        performance_spans = soup.find_all(
+            "span",
+            class_="Typography_root__axuOu"
+        )
+
+        for span in performance_spans:
+
+            span_text = span.get_text(strip=True)
+
+            if "開場時刻" in span_text and "開演時刻" in span_text:
+
+                performance_date = span_text
+
+                break
+
+        # =====================
         # 抽選締切取得
         # =====================
 
@@ -83,13 +104,15 @@ for URL in URLS:
 
 {event_title}
 
-抽選受付の締切は
-{month}月{day}日です！
+■ 公演日時
+{performance_date}
+
+■ 抽選受付締切
+{month}月{day}日
 
 {URL}
 
 #feelNEO
-#チケットリマインダー
 """
 
             # =====================
