@@ -83,14 +83,21 @@ for URL in URLS:
         # 抽選締切取得
         # =====================
 
-        pattern = r'抽選受付中.*?(\d{4})\/(\d{2})\/(\d{2}).*?〜.*?(\d{4})\/(\d{2})\/(\d{2})'
+        pattern = r'抽選受付中.*?(\d{4})\/(\d{2})\/(\d{2}).*?〜.*?(\d{4})\/(\d{2})\/(\d{2}).*?(\d{2}:\d{2})'
 
         match = re.search(pattern, text, re.DOTALL)
 
         if match:
 
-            start_year, start_month, start_day, \
-            end_year, end_month, end_day = match.groups()
+            (
+                start_year,
+                start_month,
+                start_day,
+                end_year,
+                end_month,
+                end_day,
+                end_time
+            ) = match.groups()
 
             month = int(end_month)
             day = int(end_day)
@@ -100,7 +107,7 @@ for URL in URLS:
             # =====================
 
             post_text = f"""
-【抽選受付締切のお知らせ】
+【抽選受付締切】
 
 {event_title}
 
@@ -108,7 +115,7 @@ for URL in URLS:
 {performance_date}
 
 ■ 抽選受付締切
-{month}月{day}日
+{month}月{day}日 {end_time} まで
 
 {URL}
 
