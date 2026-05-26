@@ -42,6 +42,23 @@ for URL in URLS:
         text = soup.get_text("\n")
 
         # =====================
+        # イベントタイトル取得
+        # =====================
+
+        title_element = soup.find(
+            "span",
+            class_="Typography_root__axuOu EventInfoUnit_name__2GVAA"
+        )
+
+        if title_element:
+
+            event_title = title_element.get_text(strip=True)
+
+        else:
+
+            event_title = "イベント"
+
+        # =====================
         # 抽選締切取得
         # =====================
 
@@ -62,13 +79,17 @@ for URL in URLS:
             # =====================
 
             post_text = f"""
+【抽選受付締切のお知らせ】
+
+{event_title}
+
 抽選受付の締切は
 {month}月{day}日です！
 
 {URL}
 
-#ライブ
-#チケット
+#feelNEO
+#チケットリマインダー
 """
 
             # =====================
