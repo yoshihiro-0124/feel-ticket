@@ -75,7 +75,12 @@ for URL in URLS:
 
             if "開場時刻" in span_text and "開演時刻" in span_text:
 
-                performance_date = span_text
+                # 日付部分と時刻部分を改行
+                performance_date = re.sub(
+                    r'(\d{4}/\d{1,2}/\d{1,2}\(.+?\))',
+                    r'\1\n',
+                    span_text
+                )
 
                 break
 
@@ -107,7 +112,7 @@ for URL in URLS:
             # =====================
 
             post_text = f"""
-【抽選受付締切】
+【抽選受付締切のお知らせ】
 
 {event_title}
 
@@ -115,7 +120,7 @@ for URL in URLS:
 {performance_date}
 
 ■ 抽選受付締切
-{month}月{day}日 {end_time} まで
+{month}月{day}日 {end_time}
 
 {URL}
 
