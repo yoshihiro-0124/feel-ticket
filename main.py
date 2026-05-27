@@ -12,7 +12,8 @@ from zoneinfo import ZoneInfo
 
 URLS = [
     "https://ticketdive.com/event/feelneo-nexttour0719",
-    "https://ticketdive.com/event/rU1tfwhgdHCw9kZkAeOS"
+    "https://ticketdive.com/event/rU1tfwhgdHCw9kZkAeOS",
+    "https://ticketdive.com/event/jTXXkom64tp8Oai4ppkU"
 ]
 
 # =====================
